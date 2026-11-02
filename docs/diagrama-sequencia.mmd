@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant U as Participante
+    participant WEB as Portal Web
+    participant API as API Gateway
+    participant CAM as Camunda 8
+    participant INS as Serviço de Inscrições
+    participant PAG as Serviço de Pagamentos
+    participant NOT as Serviço de Notificações
+    participant ERP as ERP Legado
+    participant DB as PostgreSQL
+ 
+    U->>WEB: Solicita inscrição no evento
+    WEB->>API: POST /inscricoes
+    API->>CAM: Inicia instância do processo BPMN
+    CAM->>INS: Executa tarefa "Registrar inscrição"
+    INS->>DB: Insere inscrição (status PENDENTE)
+    INS-->>CAM: Inscrição registrada
+    CAM->>PAG: Executa tarefa "Processar pagamento"
+    PAG->>ERP: Consulta dados do participante
+    ERP-->>PAG: Dados validados
+    PAG->>PAG: Processa pagamento (cartão)
+    PAG-->>CAM: Pagamento aprovado
+    CAM->>INS: Atualiza status para CONFIRMADA
+    INS->>DB: Atualiza inscrição (CONFIRMADA)
+    CAM->>NOT: Executa tarefa "Enviar confirmação"
+    NOT-->>U: E-mail de confirmação
+    CAM-->>API: Processo concluído
+    API-->>WEB: HTTP 201 - Inscrição confirmada
+    WEB-->>U: Comprovante exibido
