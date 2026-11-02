@@ -1,0 +1,48 @@
+flowchart TB
+    subgraph Usuarios["Usuários"]
+        U1[Analista de Negócios]
+        U2[Operador de Processos]
+        U3[Cliente Final]
+    end
+ 
+    subgraph Apresentacao["Camada de Apresentação"]
+        WEB[Portal Web<br/>React / TypeScript]
+    end
+ 
+    subgraph Orquestracao["Camada de Orquestração"]
+        API[API Gateway<br/>Spring Boot / Java 17]
+        CAM[Camunda 8<br/>Orquestração BPMN + Decisões DMN]
+    end
+ 
+    subgraph Servicos["Camada de Serviços"]
+        SVC_INS[Serviço de Inscrições<br/>Spring Boot]
+        SVC_PAG[Serviço de Pagamentos<br/>Spring Boot]
+        SVC_NOT[Serviço de Notificações<br/>Spring Boot]
+    end
+ 
+    subgraph Dados["Camada de Dados"]
+        PG[(PostgreSQL<br/>Dados transacionais)]
+        RD[(Redis<br/>Cache / Sessão)]
+    end
+ 
+    subgraph Externos["Integrações Externas"]
+        ERP[ERP Legado<br/>Mainframe]
+        PAY[Gateway de Pagamento]
+        MAIL[Serviço de E-mail]
+    end
+ 
+    U1 --> WEB
+    U2 --> WEB
+    U3 --> WEB
+    WEB --> API
+    API --> CAM
+    CAM --> SVC_INS
+    CAM --> SVC_PAG
+    CAM --> SVC_NOT
+    SVC_INS --> PG
+    SVC_PAG --> PG
+    SVC_NOT --> PG
+    SVC_INS --> RD
+    SVC_PAG --> PAY
+    SVC_NOT --> MAIL
+    SVC_INS --> ERP
